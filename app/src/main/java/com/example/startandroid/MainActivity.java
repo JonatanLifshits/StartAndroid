@@ -10,22 +10,43 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView myText;
-    private Button myBtn;
-    private CheckBox myCheckBox;
+    TextView tvOut;
+    Button btnOk;
+    Button btnCancel;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        myText =  findViewById(R.id.myText);
-        myBtn = findViewById(R.id.myBtn);
-        myCheckBox = findViewById(R.id.myCheckBox);
+        tvOut = (TextView) findViewById(R.id.tvOut);
+        btnOk = (Button) findViewById(R.id.btnOk);
+        btnCancel = (Button) findViewById(R.id.btnCancel);
 
-        myText.setText("Hello World!");
-        myBtn.setText("My Button");
-        myBtn.setEnabled(false);
-        myCheckBox.setChecked(true);
+        btnOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        View.OnClickListener oclBtnOk = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                tvOut.setText("Нажата кнопка Ок");
+
+            }
+        };
+        btnOk.setOnClickListener(oclBtnOk);
+
+        View.OnClickListener oclBtnCancel = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvOut.setText("Нажата кнопка Cancel");
+            }
+        };
     }
 }
+
+
