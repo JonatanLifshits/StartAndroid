@@ -1,87 +1,66 @@
 package com.example.startandroid;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
+import android.content.DialogInterface.OnDismissListener;
+import android.content.DialogInterface.OnShowListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+    final String LOG_TAG = "myLogs";
     final int DIALOG = 1;
 
-    int btn;
-    LinearLayout view;
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-    TextView tvCount;
-    ArrayList<TextView> textViews;
+    Dialog dialog;
 
     /** Called when the activity is first created. */
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        textViews = new ArrayList<TextView>(10);
-    }
-
-    public void onclick(View v) {
-        btn = v.getId();
-        showDialog(DIALOG);
     }
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setTitle("Custom dialog");
-        // создаем view из dialog.xml
-        view = (LinearLayout) getLayoutInflater()
-                .inflate(R.layout.dialog, null);
-        // устанавливаем ее, как содержимое тела диалога
-        adb.setView(view);
-        // находим TexView для отображения кол-ва
-        tvCount = (TextView) view.findViewById(R.id.tvCount);
-        return adb.create();
+        if (id == DIALOG) {
+            Log.d(LOG_TAG, "Create");
+            AlertDialog.Builder adb = new AlertDialog.Builder(this);
+            adb.setTitle("Title");
+            adb.setMessage("Message");
+            adb.setPositiveButton("OK", null);
+            dialog = adb.create();
+
+            // обработчик отображения
+            dialog.setOnShowListener(new OnShowListener() {
+                public void onShow(DialogInterface dialog) {
+                    Log.d(LOG_TAG, "Show");
+                }
+            });
+
+            // обработчик отмены
+            dialog.setOnCancelListener(new OnCancelListener() {
+                public void onCancel(DialogInterface dialog) {
+                    Log.d(LOG_TAG, "Cancel");
+                }
+            });
+
+            // обработчик закрытия
+            dialog.setOnDismissListener(new OnDismissListener() {
+                public void onDismiss(DialogInterface dialog) {
+                    Log.d(LOG_TAG, "Dismiss");
+                }
+            });
+            return dialog;
+        }
+        return super.onCreateDialog(id);
     }
 
-    @Override
-    protected void onPrepareDialog(int id, Dialog dialog) {
-        super.onPrepareDialog(id, dialog);
-        if (id == DIALOG) {
-            // Находим TextView для отображения времени и показываем текущее
-            // время
-            TextView tvTime = (TextView) dialog.getWindow().findViewById(
-                    R.id.tvTime);
-            tvTime.setText(sdf.format(new Date(System.currentTimeMillis())));
-            // если была нажата кнопка Добавить
-            if (btn == R.id.btnAdd) {
-                // создаем новое TextView, добавляем в диалог, указываем текст
-                TextView tv = new TextView(this);
-                view.addView(tv, new LayoutParams(LayoutParams.MATCH_PARENT,
-                        LayoutParams.WRAP_CONTENT));
-                tv.setText("TextView " + (textViews.size() + 1));
-                // добавляем новое TextView в коллекцию
-                textViews.add(tv);
-                // иначе
-            } else {
-                // если коллекция созданных TextView непуста
-                if (textViews.size() > 0) {
-                    // находим в коллекции последний TextView
-                    TextView tv = textViews.get(textViews.size() - 1);
-                    // удаляем из диалога
-                    view.removeView(tv);
-                    // удаляем из коллекции
-                    textViews.remove(tv);
-                }
-            }
-            // обновляем счетчик
-            tvCount.setText("Кол-во TextView = " + textViews.size());
-        }
+    public void onclick(View v) {
+        showDialog(DIALOG);
     }
 }
 

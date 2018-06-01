@@ -5,17 +5,10 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
     <Button
-        android:id="@+id/btnAdd"
+        android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/add"
-        android:onClick="onclick">
-    </Button>
-    <Button
-        android:id="@+id/btnRemove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/remove"
+        android:text="@string/dialog"
         android:onClick="onclick">
     </Button>
 </LinearLayout>
