@@ -1,48 +1,127 @@
 package com.example.startandroid;
-
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
+import android.widget.ListAdapter;
 
 public class MainActivity extends Activity {
 
-    final static String LOG_TAG = "myLogs";
-    final int DIALOG = 1;
-    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    final String LOG_TAG = "myLogs";
+
+    final int DIALOG_ITEMS = 1;
+    final int DIALOG_ADAPTER = 2;
+    final int DIALOG_CURSOR = 3;
+    int cnt = 0;
+    DB db;
+    Cursor cursor;
+
+    String data[] = { "one", "two", "three", "four" };
 
     /** Called when the activity is first created. */
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        // открываем подключение к БД
+        db = new DB(this);
+        db.open();
+        cursor = db.getAllData();
+        startManagingCursor(cursor);
     }
 
     public void onclick(View v) {
-        showDialog(DIALOG);
+        changeCount();
+        switch (v.getId()) {
+            case R.id.btnItems:
+                showDialog(DIALOG_ITEMS);
+                break;
+            case R.id.btnAdapter:
+                showDialog(DIALOG_ADAPTER);
+                break;
+            case R.id.btnCursor:
+                showDialog(DIALOG_CURSOR);
+                break;
+            default:
+                break;
+        }
     }
 
     protected Dialog onCreateDialog(int id) {
-        Log.d(LOG_TAG, "onCreateDialog");
-        if (id == DIALOG) {
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-            adb.setTitle("Текущее время");
-            adb.setMessage(sdf.format(new Date(System.currentTimeMillis())));
-            return adb.create();
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        switch (id) {
+            // массив
+            case DIALOG_ITEMS:
+                adb.setTitle(R.string.items);
+                adb.setItems(data, myClickListener);
+                break;
+            // адаптер
+            case DIALOG_ADAPTER:
+                adb.setTitle(R.string.adapter);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                        android.R.layout.select_dialog_item, data);
+                adb.setAdapter(adapter, myClickListener);
+                break;
+            // курсор
+            case DIALOG_CURSOR:
+                adb.setTitle(R.string.cursor);
+                adb.setCursor(cursor, myClickListener, DB.COLUMN_TXT);
+                break;
         }
-        return super.onCreateDialog(id);
+        return adb.create();
     }
 
     protected void onPrepareDialog(int id, Dialog dialog) {
-        super.onPrepareDialog(id, dialog);
-        Log.d(LOG_TAG, "onPrepareDialog");
-        if (id == DIALOG) {
-            ((AlertDialog)dialog).setMessage(sdf.format(new Date(System.currentTimeMillis())));
+        // получаем доступ к адаптеру списка диалога
+        AlertDialog aDialog = (AlertDialog) dialog;
+        ListAdapter lAdapter = aDialog.getListView().getAdapter();
+
+        switch (id) {
+            case DIALOG_ITEMS:
+            case DIALOG_ADAPTER:
+                // проверка возможности преобразования
+                if (lAdapter instanceof BaseAdapter) {
+                    // преобразование и вызов метода-уведомления о новых данных
+                    BaseAdapter bAdapter = (BaseAdapter) lAdapter;
+                    bAdapter.notifyDataSetChanged();
+                }
+                break;
+            case DIALOG_CURSOR:
+                break;
+            default:
+                break;
         }
+    };
+
+    // обработчик нажатия на пункт списка диалога
+    OnClickListener myClickListener = new OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            // выводим в лог позицию нажатого элемента
+            Log.d(LOG_TAG, "which = " + which);
+        }
+    };
+
+    // меняем значение счетчика
+    void changeCount() {
+        cnt++;
+        // обновляем массив
+        data[3] = String.valueOf(cnt);
+        // обновляем БД
+        db.changeRec(4, String.valueOf(cnt));
+        cursor.requery();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        db.close();
     }
 }
