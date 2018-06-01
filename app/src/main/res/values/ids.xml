@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="llMain" type="id" />
+    <item name="rgGravity" type="id" />
+    <item name="etName" type="id" />
+    <item name="btnClear" type="id" />
+    <item name="rbLeft" type="id" />
+    <item name="rbCenter" type="id" />
+    <item name="rbRight" type="id" />
+</resources>
