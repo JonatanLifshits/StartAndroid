@@ -1,57 +1,27 @@
 package com.example.startandroid;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.util.Log;
+import android.view.View;
 
 public class MainActivity extends Activity {
 
     final String LOG_TAG = "myLogs";
-    Parcel p;
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        writeParcel();
-        readParcel();
     }
 
-    void writeParcel() {
-        p = Parcel.obtain();
-
-        byte b = 1;
-        int i = 2;
-        long l = 3;
-        float f = 4;
-        double d = 5;
-        String s = "abcdefgh";
-
-        logWriteInfo("before writing");
-        p.writeByte(b);
-        logWriteInfo("byte");
-        p.writeInt(i);
-        logWriteInfo("int");
-        p.writeLong(l);
-        logWriteInfo("long");
-        p.writeFloat(f);
-        logWriteInfo("float");
-        p.writeDouble(d);
-        logWriteInfo("double");
-        p.writeString(s);
-        logWriteInfo("String");
+    public void onclick(View v) {
+        MyObject myObj = new MyObject("text", 1);
+        Intent intent = new Intent(this, SecondActivity.class);
+        intent.putExtra(MyObject.class.getCanonicalName(), myObj);
+        Log.d(LOG_TAG, "startActivity");
+        startActivity(intent);
     }
-
-    void logWriteInfo(String txt) {
-        Log.d(LOG_TAG, txt + ": " + "dataSize = " + p.dataSize());
-    }
-
-    void readParcel() {
-    }
-
-    void logReadInfo(String txt) {
-    }
-
 }
 
 
