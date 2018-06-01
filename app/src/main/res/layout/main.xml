@@ -4,17 +4,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/main">
-    </TextView>
     <Button
         android:id="@+id/button1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onclick"
-        android:text="@string/send">
+        android:text="@string/count">
     </Button>
-</LinearLayout>]
+    <EditText
+        android:id="@+id/editText1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10">
+        <requestFocus>
+        </requestFocus>
+    </EditText>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10">
+    </EditText>
+</LinearLayout>
 
