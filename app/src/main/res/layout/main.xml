@@ -4,15 +4,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
-    <Button
-        android:id="@+id/btnChecked"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Get checked items">
-    </Button>
-    <ListView
-        android:id="@+id/lvMain"
+    <ExpandableListView
+        android:id="@+id/elvMain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    </ListView>
+    </ExpandableListView>
 </LinearLayout>
