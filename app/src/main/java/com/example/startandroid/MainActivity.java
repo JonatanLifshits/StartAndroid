@@ -1,48 +1,67 @@
 package com.example.startandroid;
 
-import java.util.ArrayList;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    ArrayList<Product> products = new ArrayList<Product>();
-    BoxAdapter boxAdapter;
+    final String LOG_TAG = "myLogs";
+
+    String[] data = {"one", "two", "three", "four", "five"};
+    ListView lvMain;
+    ArrayAdapter<String> adapter;
+
+    View header1;
+    View header2;
+
+    View footer1;
+    View footer2;
+
 
     /** Called when the activity is first created. */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // создаем адаптер
-        fillData();
-        boxAdapter = new BoxAdapter(this, products);
+        lvMain = (ListView) findViewById(R.id.lvMain);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data);
 
-        // настраиваем список
-        ListView lvMain = (ListView) findViewById(R.id.lvMain);
-        lvMain.setAdapter(boxAdapter);
+        // создаем Header и Footer
+        header1 = createHeader("header 1");
+        header2 = createHeader("header 2");
+        footer1 = createFooter("footer 1");
+        footer2 = createFooter("footer 2");
+
+        fillList();
+
     }
 
-    // генерируем данные для адаптера
-    void fillData() {
-        for (int i = 1; i <= 20; i++) {
-            products.add(new Product("Product " + i, i * 1000,
-                    R.drawable.ic_launcher, false));
-        }
+    // формирование списка
+    void fillList() {
     }
 
-    // выводим информацию о корзине
-    public void showResult(View v) {
-        String result = "Товары в корзине:";
-        for (Product p : boxAdapter.getBox()) {
-            if (p.box)
-                result += "\n" + p.name;
-        }
-        Toast.makeText(this, result, Toast.LENGTH_LONG).show();
+    // нажатие кнопки
+    public void onclick(View v) {
+    }
+
+    // создание Header
+    View createHeader(String text) {
+        View v = getLayoutInflater().inflate(R.layout.header, null);
+        ((TextView)v.findViewById(R.id.tvText)).setText(text);
+        return v;
+    }
+
+    // создание Footer
+    View createFooter(String text) {
+        View v = getLayoutInflater().inflate(R.layout.footer, null);
+        ((TextView)v.findViewById(R.id.tvText)).setText(text);
+        return v;
     }
 }
-
 

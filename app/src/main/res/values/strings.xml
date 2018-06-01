@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">StartAndroid</string>
-    <string name="hello" />
+    <string name="header_title">Header</string>
+    <string name="footer_title">Footer</string>
+    <string name="button_text">Test</string>
 </resources>
