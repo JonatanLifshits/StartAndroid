@@ -1,108 +1,87 @@
 package com.example.startandroid;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.DialogInterface.OnMultiChoiceClickListener;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.CursorAdapter;
-import android.widget.ListView;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    final String LOG_TAG = "myLogs";
+    final int DIALOG = 1;
 
-    final int DIALOG_ITEMS = 1;
-    final int DIALOG_CURSOR = 3;
-    DB db;
-    Cursor cursor;
-
-    String data[] = { "one", "two", "three", "four" };
-    boolean chkd[] = { false, true, true, false };
+    int btn;
+    LinearLayout view;
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+    TextView tvCount;
+    ArrayList<TextView> textViews;
 
     /** Called when the activity is first created. */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        // открываем подключение к БД
-        db = new DB(this);
-        db.open();
-        cursor = db.getAllData();
-        startManagingCursor(cursor);
+        textViews = new ArrayList<TextView>(10);
     }
 
     public void onclick(View v) {
-        switch (v.getId()) {
-            case R.id.btnItems:
-                showDialog(DIALOG_ITEMS);
-                break;
-            case R.id.btnCursor:
-                showDialog(DIALOG_CURSOR);
-                break;
-            default:
-                break;
-        }
+        btn = v.getId();
+        showDialog(DIALOG);
     }
 
+    @Override
     protected Dialog onCreateDialog(int id) {
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        switch (id) {
-            // массив
-            case DIALOG_ITEMS:
-                adb.setTitle(R.string.items);
-                adb.setMultiChoiceItems(data, chkd, myItemsMultiClickListener);
-                break;
-            // курсор
-            case DIALOG_CURSOR:
-                adb.setTitle(R.string.cursor);
-                adb.setMultiChoiceItems(cursor, DB.COLUMN_CHK, DB.COLUMN_TXT, myCursorMultiClickListener);
-                break;
-        }
-        adb.setPositiveButton(R.string.ok, myBtnClickListener);
+        adb.setTitle("Custom dialog");
+        // создаем view из dialog.xml
+        view = (LinearLayout) getLayoutInflater()
+                .inflate(R.layout.dialog, null);
+        // устанавливаем ее, как содержимое тела диалога
+        adb.setView(view);
+        // находим TexView для отображения кол-ва
+        tvCount = (TextView) view.findViewById(R.id.tvCount);
         return adb.create();
     }
 
-    // обработчик для списка массива
-    OnMultiChoiceClickListener myItemsMultiClickListener = new OnMultiChoiceClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-            Log.d(LOG_TAG, "which = " + which + ", isChecked = " + isChecked);
-        }
-    };
-
-    // обработчик для списка курсора
-    OnMultiChoiceClickListener myCursorMultiClickListener = new OnMultiChoiceClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-            ListView lv = ((AlertDialog) dialog).getListView();
-            Log.d(LOG_TAG, "which = " + which + ", isChecked = " + isChecked);
-            db.changeRec(which, isChecked);
-            cursor.requery();
-        }
-    };
-
-    // обработчик нажатия на кнопку
-    OnClickListener myBtnClickListener = new OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            SparseBooleanArray sbArray = ((AlertDialog)dialog).getListView().getCheckedItemPositions();
-            for (int i = 0; i < sbArray.size(); i++) {
-                int key = sbArray.keyAt(i);
-                if (sbArray.get(key))
-                    Log.d("qwe", "checked: " + key);
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        super.onPrepareDialog(id, dialog);
+        if (id == DIALOG) {
+            // Находим TextView для отображения времени и показываем текущее
+            // время
+            TextView tvTime = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvTime);
+            tvTime.setText(sdf.format(new Date(System.currentTimeMillis())));
+            // если была нажата кнопка Добавить
+            if (btn == R.id.btnAdd) {
+                // создаем новое TextView, добавляем в диалог, указываем текст
+                TextView tv = new TextView(this);
+                view.addView(tv, new LayoutParams(LayoutParams.MATCH_PARENT,
+                        LayoutParams.WRAP_CONTENT));
+                tv.setText("TextView " + (textViews.size() + 1));
+                // добавляем новое TextView в коллекцию
+                textViews.add(tv);
+                // иначе
+            } else {
+                // если коллекция созданных TextView непуста
+                if (textViews.size() > 0) {
+                    // находим в коллекции последний TextView
+                    TextView tv = textViews.get(textViews.size() - 1);
+                    // удаляем из диалога
+                    view.removeView(tv);
+                    // удаляем из коллекции
+                    textViews.remove(tv);
+                }
             }
+            // обновляем счетчик
+            tvCount.setText("Кол-во TextView = " + textViews.size());
         }
-    };
-
-    protected void onDestroy() {
-        super.onDestroy();
-        db.close();
     }
-
 }
 

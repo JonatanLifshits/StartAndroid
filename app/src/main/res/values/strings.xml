@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AlertDialogItemsMulti</string>
-    <string name="items">Items</string>
-    <string name="cursor">Cursor</string>
-    <string name="ok">OK</string>
+    <string name="app_name">AlertDialogCustom</string>
+    <string name="add">Добавить</string>
+    <string name="remove">Удалить</string>
 </resources>
