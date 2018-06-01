@@ -1,8 +1,9 @@
 package com.example.startandroid;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteOpenHelper;
-        import android.content.ContentValues;
+import android.content.ContentValues;
         import android.content.Context;
         import android.database.Cursor;
         import android.database.sqlite.SQLiteDatabase;
@@ -48,13 +49,6 @@ public class DB {
     // получить все данные из таблицы DB_TABLE
     public Cursor getAllData() {
         return mDB.query(DB_TABLE, null, null, null, null, null, null);
-    }
-
-    // изменить запись в DB_TABLE
-    public void changeRec(int id, String txt) {
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_TXT, txt);
-        mDB.update(DB_TABLE, cv, COLUMN_ID + " = " + id, null);
     }
 
     // класс по созданию и управлению БД
