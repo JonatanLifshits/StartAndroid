@@ -14,19 +14,19 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.w3c.dom.Text;
 
-ublic class MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements SeekBar.OnSeekBarChangeListener {
 
-    LinearLayout llMain;
-    RadioGroup rgGravity;
-    EditText etName;
-    Button btnCreate;
-    Button btnClear;
+    SeekBar sbWeight;
+    Button btn1;
+    Button btn2;
 
-    int wrapContent = LinearLayout.LayoutParams.WRAP_CONTENT;
+    LinearLayout.LayoutParams lParams1;
+    LinearLayout.LayoutParams lParams2;
 
     /** Called when the activity is first created. */
     @Override
@@ -34,58 +34,36 @@ ublic class MainActivity extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        llMain = (LinearLayout) findViewById(R.id.llMain);
-        rgGravity = (RadioGroup) findViewById(R.id.rgGravity);
-        etName = (EditText) findViewById(R.id.etName);
+        sbWeight = (SeekBar) findViewById(R.id.sbWeight);
+        sbWeight.setOnSeekBarChangeListener(this);
 
-        btnCreate = (Button) findViewById(R.id.btnCreate);
-        btnCreate.setOnClickListener(this);
+        btn1 = (Button) findViewById(R.id.btn1);
+        btn2 = (Button) findViewById(R.id.btn2);
 
-        btnClear = (Button) findViewById(R.id.btnClear);
-        btnClear.setOnClickListener(this);
+        lParams1 = (LinearLayout.LayoutParams) btn1.getLayoutParams();
+        lParams2 = (LinearLayout.LayoutParams) btn2.getLayoutParams();
     }
 
     @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btnCreate:
-                // Создание LayoutParams c шириной и высотой по содержимому
-                LinearLayout.LayoutParams lParams = new LinearLayout.LayoutParams(
-                        wrapContent, wrapContent);
-                // переменная для хранения значения выравнивания
-                // по умолчанию пусть будет LEFT
-                int btnGravity = Gravity.LEFT;
-                // определяем, какой RadioButton "чекнут" и
-                // соответственно заполняем btnGravity
-                switch (rgGravity.getCheckedRadioButtonId()) {
-                    case R.id.rbLeft:
-                        btnGravity = Gravity.LEFT;
-                        break;
-                    case R.id.rbCenter:
-                        btnGravity = Gravity.CENTER_HORIZONTAL;
-                        break;
-                    case R.id.rbRight:
-                        btnGravity = Gravity.RIGHT;
-                        break;
-                }
-                // переносим полученное значение выравнивания в LayoutParams
-                lParams.gravity = btnGravity;
-
-                // создаем Button, пишем текст и добавляем в LinearLayout
-                Button btnNew = new Button(this);
-                btnNew.setText(etName.getText().toString());
-                llMain.addView(btnNew, lParams);
-
-                break;
-
-            case R.id.btnClear:
-                llMain.removeAllViews();
-                Toast.makeText(this, "Удалено", Toast.LENGTH_SHORT).show();
-                break;
-
-        }
+    public void onProgressChanged(SeekBar seekBar, int progress,
+                                  boolean fromUser) {
+        int leftValue = progress;
+        int rightValue = seekBar.getMax() - progress;
+        // настраиваем вес
+        lParams1.weight = leftValue;
+        lParams2.weight = rightValue;
+        // в текст кнопок пишем значения переменных
+        btn1.setText(String.valueOf(leftValue));
+        btn2.setText(String.valueOf(rightValue));
     }
 
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+    }
 }
 
 
