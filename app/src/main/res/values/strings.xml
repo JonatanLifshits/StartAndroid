@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">StartAndroid</string>
+    <string name="hello" />
 </resources>
