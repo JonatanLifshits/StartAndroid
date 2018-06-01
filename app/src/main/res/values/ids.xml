@@ -7,4 +7,17 @@
     <item name="rbLeft" type="id" />
     <item name="rbCenter" type="id" />
     <item name="rbRight" type="id" />
+    <item name="btnGroup" type="id" />
+    <item name="btnHaving" type="id" />
+    <item name="btnSort" type="id" />
+    <item name="rName" type="id" />
+    <item name="rPeople" type="id" />
+    <item name="rRegion" type="id" />
+    <item name="btnPeople" type="id" />
+    <item name="btnFunc" type="id" />
+    <item name="btnAll" type="id" />
+    <item name="etFunc" type="id" />
+    <item name="etPeople" type="id" />
+    <item name="etRegionPeople" type="id" />
+    <item name="rgSort" type="id" />
 </resources>
