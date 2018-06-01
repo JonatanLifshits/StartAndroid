@@ -1,66 +1,70 @@
 package com.example.startandroid;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnDismissListener;
-import android.content.DialogInterface.OnShowListener;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+import android.os.Message;
 import android.view.View;
 
 public class MainActivity extends Activity {
 
-    final String LOG_TAG = "myLogs";
-    final int DIALOG = 1;
-
-    Dialog dialog;
+    ProgressDialog pd;
+    Handler h;
 
     /** Called when the activity is first created. */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-    }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG) {
-            Log.d(LOG_TAG, "Create");
-            AlertDialog.Builder adb = new AlertDialog.Builder(this);
-            adb.setTitle("Title");
-            adb.setMessage("Message");
-            adb.setPositiveButton("OK", null);
-            dialog = adb.create();
-
-            // обработчик отображения
-            dialog.setOnShowListener(new OnShowListener() {
-                public void onShow(DialogInterface dialog) {
-                    Log.d(LOG_TAG, "Show");
-                }
-            });
-
-            // обработчик отмены
-            dialog.setOnCancelListener(new OnCancelListener() {
-                public void onCancel(DialogInterface dialog) {
-                    Log.d(LOG_TAG, "Cancel");
-                }
-            });
-
-            // обработчик закрытия
-            dialog.setOnDismissListener(new OnDismissListener() {
-                public void onDismiss(DialogInterface dialog) {
-                    Log.d(LOG_TAG, "Dismiss");
-                }
-            });
-            return dialog;
-        }
-        return super.onCreateDialog(id);
     }
 
     public void onclick(View v) {
-        showDialog(DIALOG);
+        switch (v.getId()) {
+            case R.id.btnDefault:
+                pd = new ProgressDialog(this);
+                pd.setTitle("Title");
+                pd.setMessage("Message");
+                // добавляем кнопку
+                pd.setButton(Dialog.BUTTON_POSITIVE, "OK", new OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+                pd.show();
+                break;
+            case R.id.btnHoriz:
+                pd = new ProgressDialog(this);
+                pd.setTitle("Title");
+                pd.setMessage("Message");
+                // меняем стиль на индикатор
+                pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                // устанавливаем максимум
+                pd.setMax(2148);
+                // включаем анимацию ожидания
+                pd.setIndeterminate(true);
+                pd.show();
+                h = new Handler() {
+                    public void handleMessage(Message msg) {
+                        // выключаем анимацию ожидания
+                        pd.setIndeterminate(false);
+                        if (pd.getProgress() < pd.getMax()) {
+                            // увеличиваем значения индикаторов
+                            pd.incrementProgressBy(50);
+                            pd.incrementSecondaryProgressBy(75);
+                            h.sendEmptyMessageDelayed(0, 100);
+                        } else {
+                            pd.dismiss();
+                        }
+                    }
+                };
+                h.sendEmptyMessageDelayed(0, 2000);
+                break;
+            default:
+                break;
+        }
     }
 }
 
