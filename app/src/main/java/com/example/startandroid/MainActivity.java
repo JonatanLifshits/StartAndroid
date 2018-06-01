@@ -14,7 +14,9 @@ public class MainActivity extends Activity {
 
     final String LOG_TAG = "myLogs";
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
@@ -35,4 +37,5 @@ public class MainActivity extends Activity {
         Log.d(LOG_TAG, "Class of view2: " + view2.getClass().toString());
         Log.d(LOG_TAG, "Class of layoutParams of view2: " + lp2.getClass().toString());
     }
+}
 
