@@ -4,11 +4,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 
 public class MainActivity extends Activity {
@@ -16,12 +18,12 @@ public class MainActivity extends Activity {
     final String LOG_TAG = "myLogs";
 
     final int DIALOG_ITEMS = 1;
-    final int DIALOG_ADAPTER = 2;
     final int DIALOG_CURSOR = 3;
     DB db;
     Cursor cursor;
 
     String data[] = { "one", "two", "three", "four" };
+    boolean chkd[] = { false, true, true, false };
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
@@ -40,9 +42,6 @@ public class MainActivity extends Activity {
             case R.id.btnItems:
                 showDialog(DIALOG_ITEMS);
                 break;
-            case R.id.btnAdapter:
-                showDialog(DIALOG_ADAPTER);
-                break;
             case R.id.btnCursor:
                 showDialog(DIALOG_CURSOR);
                 break;
@@ -57,39 +56,49 @@ public class MainActivity extends Activity {
             // массив
             case DIALOG_ITEMS:
                 adb.setTitle(R.string.items);
-                adb.setSingleChoiceItems(data, -1, myClickListener);
-                break;
-            // адаптер
-            case DIALOG_ADAPTER:
-                adb.setTitle(R.string.adapter);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                        android.R.layout.select_dialog_singlechoice, data);
-                adb.setSingleChoiceItems(adapter, -1, myClickListener);
+                adb.setMultiChoiceItems(data, chkd, myItemsMultiClickListener);
                 break;
             // курсор
             case DIALOG_CURSOR:
                 adb.setTitle(R.string.cursor);
-                adb.setSingleChoiceItems(cursor, -1, DB.COLUMN_TXT, myClickListener);
+                adb.setMultiChoiceItems(cursor, DB.COLUMN_CHK, DB.COLUMN_TXT, myCursorMultiClickListener);
                 break;
         }
-        adb.setPositiveButton(R.string.ok, myClickListener);
+        adb.setPositiveButton(R.string.ok, myBtnClickListener);
         return adb.create();
     }
 
-    // обработчик нажатия на пункт списка диалога или кнопку
-    OnClickListener myClickListener = new OnClickListener() {
-        public void onClick(DialogInterface dialog, int which) {
-            ListView lv = ((AlertDialog) dialog).getListView();
-            if (which == Dialog.BUTTON_POSITIVE)
-                // выводим в лог позицию выбранного элемента
-                Log.d(LOG_TAG, "pos = " + lv.getCheckedItemPosition());
-            else
-                // выводим в лог позицию нажатого элемента
-                Log.d(LOG_TAG, "which = " + which);
+    // обработчик для списка массива
+    OnMultiChoiceClickListener myItemsMultiClickListener = new OnMultiChoiceClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+            Log.d(LOG_TAG, "which = " + which + ", isChecked = " + isChecked);
         }
     };
 
-    @Override
+    // обработчик для списка курсора
+    OnMultiChoiceClickListener myCursorMultiClickListener = new OnMultiChoiceClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+            ListView lv = ((AlertDialog) dialog).getListView();
+            Log.d(LOG_TAG, "which = " + which + ", isChecked = " + isChecked);
+            db.changeRec(which, isChecked);
+            cursor.requery();
+        }
+    };
+
+    // обработчик нажатия на кнопку
+    OnClickListener myBtnClickListener = new OnClickListener() {
+        public void onClick(DialogInterface dialog, int which) {
+            SparseBooleanArray sbArray = ((AlertDialog)dialog).getListView().getCheckedItemPositions();
+            for (int i = 0; i < sbArray.size(); i++) {
+                int key = sbArray.keyAt(i);
+                if (sbArray.get(key))
+                    Log.d("qwe", "checked: " + key);
+            }
+        }
+    };
+
     protected void onDestroy() {
         super.onDestroy();
         db.close();

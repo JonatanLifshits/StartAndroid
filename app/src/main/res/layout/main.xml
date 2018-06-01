@@ -12,13 +12,6 @@
         android:onClick="onclick">
     </Button>
     <Button
-        android:id="@+id/btnAdapter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/adapter"
-        android:onClick="onclick">
-    </Button>
-    <Button
         android:id="@+id/btnCursor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

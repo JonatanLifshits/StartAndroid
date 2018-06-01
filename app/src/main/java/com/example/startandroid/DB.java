@@ -2,13 +2,10 @@ package com.example.startandroid;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.content.ContentValues;
-        import android.content.Context;
-        import android.database.Cursor;
-        import android.database.sqlite.SQLiteDatabase;
-        import android.database.sqlite.SQLiteDatabase.CursorFactory;
-        import android.database.sqlite.SQLiteOpenHelper;
 
 public class DB {
 
@@ -17,11 +14,13 @@ public class DB {
     private static final String DB_TABLE = "mytab";
 
     public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_CHK = "checked";
     public static final String COLUMN_TXT = "txt";
 
     private static final String DB_CREATE =
             "create table " + DB_TABLE + "(" +
                     COLUMN_ID + " integer primary key, " +
+                    COLUMN_CHK + " integer, " +
                     COLUMN_TXT + " text" +
                     ");";
 
@@ -51,6 +50,13 @@ public class DB {
         return mDB.query(DB_TABLE, null, null, null, null, null, null);
     }
 
+    //изменить запись в DB_TABLE
+    public void changeRec(int pos, boolean isChecked) {
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_CHK, (isChecked) ? 1 : 0);
+        mDB.update(DB_TABLE, cv, COLUMN_ID + " = " + (pos + 1), null);
+    }
+
     // класс по созданию и управлению БД
     private class DBHelper extends SQLiteOpenHelper {
 
@@ -68,6 +74,7 @@ public class DB {
             for (int i = 1; i < 5; i++) {
                 cv.put(COLUMN_ID, i);
                 cv.put(COLUMN_TXT, "sometext " + i);
+                cv.put(COLUMN_CHK, 0);
                 db.insert(DB_TABLE, null, cv);
             }
         }
