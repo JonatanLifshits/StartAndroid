@@ -1,82 +1,64 @@
 package com.example.startandroid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
+import android.widget.ExpandableListView;
+import android.widget.SimpleCursorTreeAdapter;
 
 public class MainActivity extends Activity {
 
-    private static final int CM_DELETE_ID = 1;
-    ListView lvData;
+    ExpandableListView elvMain;
     DB db;
-    SimpleCursorAdapter scAdapter;
-    Cursor cursor;
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // открываем подключение к БД
+        // подключаемся к БД
         db = new DB(this);
         db.open();
 
-        // получаем курсор
-        cursor = db.getAllData();
+        // готовим данные по группам для адаптера
+        Cursor cursor = db.getCompanyData();
         startManagingCursor(cursor);
+        // сопоставление данных и View для групп
+        String[] groupFrom = { DB.COMPANY_COLUMN_NAME };
+        int[] groupTo = { android.R.id.text1 };
+        // сопоставление данных и View для элементов
+        String[] childFrom = { DB.PHONE_COLUMN_NAME };
+        int[] childTo = { android.R.id.text1 };
 
-        // формируем столбцы сопоставления
-        String[] from = new String[] { DB.COLUMN_IMG, DB.COLUMN_TXT };
-        int[] to = new int[] { R.id.ivImg, R.id.tvText };
-
-        // создааем адаптер и настраиваем список
-        scAdapter = new SimpleCursorAdapter(this, R.layout.item, cursor, from, to);
-        lvData = (ListView) findViewById(R.id.lvData);
-        lvData.setAdapter(scAdapter);
-
-        // добавляем контекстное меню к списку
-        registerForContextMenu(lvData);
-    }
-
-    // обработка нажатия кнопки
-    public void onButtonClick(View view) {
-        // добавляем запись
-        db.addRec("sometext " + (cursor.getCount() + 1), R.drawable.ic_launcher);
-        // обновляем курсор
-        cursor.requery();
-    }
-
-    public void onCreateContextMenu(ContextMenu menu, View v,
-                                    ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        menu.add(0, CM_DELETE_ID, 0, R.string.delete_record);
-    }
-
-    public boolean onContextItemSelected(MenuItem item) {
-        if (item.getItemId() == CM_DELETE_ID) {
-            // получаем из пункта контекстного меню данные по пункту списка
-            AdapterContextMenuInfo acmi = (AdapterContextMenuInfo) item.getMenuInfo();
-            // извлекаем id записи и удаляем соответствующую запись в БД
-            db.delRec(acmi.id);
-            // обновляем курсор
-            cursor.requery();
-            return true;
-        }
-        return super.onContextItemSelected(item);
+        // создаем адаптер и настраиваем список
+        SimpleCursorTreeAdapter sctAdapter = new MyAdapter(this, cursor,
+                android.R.layout.simple_expandable_list_item_1, groupFrom,
+                groupTo, android.R.layout.simple_list_item_1, childFrom,
+                childTo);
+        elvMain = (ExpandableListView) findViewById(R.id.elvMain);
+        elvMain.setAdapter(sctAdapter);
     }
 
     protected void onDestroy() {
         super.onDestroy();
-        // закрываем подключение при выходе
         db.close();
     }
 
+    class MyAdapter extends SimpleCursorTreeAdapter {
+
+        public MyAdapter(Context context, Cursor cursor, int groupLayout,
+                         String[] groupFrom, int[] groupTo, int childLayout,
+                         String[] childFrom, int[] childTo) {
+            super(context, cursor, groupLayout, groupFrom, groupTo,
+                    childLayout, childFrom, childTo);
+        }
+
+        protected Cursor getChildrenCursor(Cursor groupCursor) {
+            // получаем курсор по элементам для конкретной группы
+            int idColumn = groupCursor.getColumnIndex(DB.COMPANY_COLUMN_ID);
+            return db.getPhoneData(groupCursor.getInt(idColumn));
+        }
+    }
 }
 
