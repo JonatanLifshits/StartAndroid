@@ -1,7 +1,6 @@
 package com.example.startandroid;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -10,8 +9,9 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-    TextView tvName;
-    Button btnName;
+    TextView tvText;
+    Button btnColor;
+    Button btnAlign;
 
     /** Called when the activity is first created. */
     @Override
@@ -19,24 +19,20 @@ public class MainActivity extends Activity implements OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        tvName = (TextView) findViewById(R.id.tvName);
-        btnName = (Button) findViewById(R.id.btnName);
-        btnName.setOnClickListener(this);
+        tvText = (TextView) findViewById(R.id.tvText);
+
+        btnColor = (Button) findViewById(R.id.btnColor);
+        btnAlign = (Button) findViewById(R.id.btnAlign);
+
+        btnColor.setOnClickListener(this);
+        btnAlign.setOnClickListener(this);
 
     }
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(this, NameActivity.class);
-        startActivityForResult(intent, 1);
-    }
+        // TODO Auto-generated method stub
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (data == null) {return;}
-        String name = data.getStringExtra("name");
-        tvName.setText("Your name is " + name);
     }
 }
 
