@@ -1,71 +1,57 @@
 package com.example.startandroid;
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.view.View;
+import android.os.Parcel;
+import android.util.Log;
 
 public class MainActivity extends Activity {
 
-    ProgressDialog pd;
-    Handler h;
+    final String LOG_TAG = "myLogs";
+    Parcel p;
 
     /** Called when the activity is first created. */
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        writeParcel();
+        readParcel();
     }
 
-    public void onclick(View v) {
-        switch (v.getId()) {
-            case R.id.btnDefault:
-                pd = new ProgressDialog(this);
-                pd.setTitle("Title");
-                pd.setMessage("Message");
-                // добавляем кнопку
-                pd.setButton(Dialog.BUTTON_POSITIVE, "OK", new OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-                pd.show();
-                break;
-            case R.id.btnHoriz:
-                pd = new ProgressDialog(this);
-                pd.setTitle("Title");
-                pd.setMessage("Message");
-                // меняем стиль на индикатор
-                pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                // устанавливаем максимум
-                pd.setMax(2148);
-                // включаем анимацию ожидания
-                pd.setIndeterminate(true);
-                pd.show();
-                h = new Handler() {
-                    public void handleMessage(Message msg) {
-                        // выключаем анимацию ожидания
-                        pd.setIndeterminate(false);
-                        if (pd.getProgress() < pd.getMax()) {
-                            // увеличиваем значения индикаторов
-                            pd.incrementProgressBy(50);
-                            pd.incrementSecondaryProgressBy(75);
-                            h.sendEmptyMessageDelayed(0, 100);
-                        } else {
-                            pd.dismiss();
-                        }
-                    }
-                };
-                h.sendEmptyMessageDelayed(0, 2000);
-                break;
-            default:
-                break;
-        }
+    void writeParcel() {
+        p = Parcel.obtain();
+
+        byte b = 1;
+        int i = 2;
+        long l = 3;
+        float f = 4;
+        double d = 5;
+        String s = "abcdefgh";
+
+        logWriteInfo("before writing");
+        p.writeByte(b);
+        logWriteInfo("byte");
+        p.writeInt(i);
+        logWriteInfo("int");
+        p.writeLong(l);
+        logWriteInfo("long");
+        p.writeFloat(f);
+        logWriteInfo("float");
+        p.writeDouble(d);
+        logWriteInfo("double");
+        p.writeString(s);
+        logWriteInfo("String");
     }
+
+    void logWriteInfo(String txt) {
+        Log.d(LOG_TAG, txt + ": " + "dataSize = " + p.dataSize());
+    }
+
+    void readParcel() {
+    }
+
+    void logReadInfo(String txt) {
+    }
+
 }
 
 
