@@ -1,109 +1,83 @@
 package com.example.startandroid;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ExpandableListView.OnGroupCollapseListener;
+import android.widget.ExpandableListView.OnGroupExpandListener;
 import android.widget.SimpleExpandableListAdapter;
+import android.widget.TextView;
+
 
 public class MainActivity extends Activity {
 
-    // названия компаний (групп)
-    String[] groups = new String[] {"HTC", "Samsung", "LG"};
-
-    // названия телефонов (элементов)
-    String[] phonesHTC = new String[] {"Sensation", "Desire", "Wildfire", "Hero"};
-    String[] phonesSams = new String[] {"Galaxy S II", "Galaxy Nexus", "Wave"};
-    String[] phonesLG = new String[] {"Optimus", "Optimus Link", "Optimus Black", "Optimus One"};
-
-    // коллекция для групп
-    ArrayList<Map<String, String>> groupData;
-
-    // коллекция для элементов одной группы
-    ArrayList<Map<String, String>> childDataItem;
-
-    // общая коллекция для коллекций элементов
-    ArrayList<ArrayList<Map<String, String>>> childData;
-    // в итоге получится childData = ArrayList<childDataItem>
-
-    // список атрибутов группы или элемента
-    Map<String, String> m;
+    final String LOG_TAG = "myLogs";
 
     ExpandableListView elvMain;
-
+    AdapterHelper ah;
+    SimpleExpandableListAdapter adapter;
+    TextView tvInfo;
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // заполняем коллекцию групп из массива с названиями групп
-        groupData = new ArrayList<Map<String, String>>();
-        for (String group : groups) {
-            // заполняем список атрибутов для каждой группы
-            m = new HashMap<String, String>();
-            m.put("groupName", group); // имя компании
-            groupData.add(m);
-        }
+        tvInfo = (TextView) findViewById(R.id.tvInfo);
 
-        // список атрибутов групп для чтения
-        String groupFrom[] = new String[] {"groupName"};
-        // список ID view-элементов, в которые будет помещены атрибуты групп
-        int groupTo[] = new int[] {android.R.id.text1};
-
-
-        // создаем коллекцию для коллекций элементов
-        childData = new ArrayList<ArrayList<Map<String, String>>>();
-
-        // создаем коллекцию элементов для первой группы
-        childDataItem = new ArrayList<Map<String, String>>();
-        // заполняем список атрибутов для каждого элемента
-        for (String phone : phonesHTC) {
-            m = new HashMap<String, String>();
-            m.put("phoneName", phone); // название телефона
-            childDataItem.add(m);
-        }
-        // добавляем в коллекцию коллекций
-        childData.add(childDataItem);
-
-        // создаем коллекцию элементов для второй группы
-        childDataItem = new ArrayList<Map<String, String>>();
-        for (String phone : phonesSams) {
-            m = new HashMap<String, String>();
-            m.put("phoneName", phone);
-            childDataItem.add(m);
-        }
-        childData.add(childDataItem);
-
-        // создаем коллекцию элементов для третьей группы
-        childDataItem = new ArrayList<Map<String, String>>();
-        for (String phone : phonesLG) {
-            m = new HashMap<String, String>();
-            m.put("phoneName", phone);
-            childDataItem.add(m);
-        }
-        childData.add(childDataItem);
-
-        // список атрибутов элементов для чтения
-        String childFrom[] = new String[] {"phoneName"};
-        // список ID view-элементов, в которые будет помещены атрибуты элементов
-        int childTo[] = new int[] {android.R.id.text1};
-
-        SimpleExpandableListAdapter adapter = new SimpleExpandableListAdapter(
-                this,
-                groupData,
-                android.R.layout.simple_expandable_list_item_1,
-                groupFrom,
-                groupTo,
-                childData,
-                android.R.layout.simple_list_item_1,
-                childFrom,
-                childTo);
+        // создаем адаптер
+        ah = new AdapterHelper(this);
+        adapter = ah.getAdapter();
 
         elvMain = (ExpandableListView) findViewById(R.id.elvMain);
         elvMain.setAdapter(adapter);
+
+        // нажатие на элемент
+        elvMain.setOnChildClickListener(new OnChildClickListener() {
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition,   int childPosition, long id) {
+                Log.d(LOG_TAG, "onChildClick groupPosition = " + groupPosition +
+                        " childPosition = " + childPosition +
+                        " id = " + id);
+                tvInfo.setText(ah.getGroupChildText(groupPosition, childPosition));
+                return false;
+            }
+        });
+
+        // нажатие на группу
+        elvMain.setOnGroupClickListener(new OnGroupClickListener() {
+            public boolean onGroupClick(ExpandableListView parent, View v,
+                                        int groupPosition, long id) {
+                Log.d(LOG_TAG, "onGroupClick groupPosition = " + groupPosition +
+                        " id = " + id);
+                // блокируем дальнейшую обработку события для группы с позицией 1
+                if (groupPosition == 1) return true;
+
+                return false;
+            }
+        });
+
+        // сворачивание группы
+        elvMain.setOnGroupCollapseListener(new OnGroupCollapseListener() {
+            public void onGroupCollapse(int groupPosition) {
+                Log.d(LOG_TAG, "onGroupCollapse groupPosition = " + groupPosition);
+                tvInfo.setText("Свернули " + ah.getGroupText(groupPosition));
+            }
+        });
+
+        // разворачивание группы
+        elvMain.setOnGroupExpandListener(new OnGroupExpandListener() {
+            public void onGroupExpand(int groupPosition) {
+                Log.d(LOG_TAG, "onGroupExpand groupPosition = " + groupPosition);
+                tvInfo.setText("Развернули " + ah.getGroupText(groupPosition));
+            }
+        });
+
+        // разворачиваем группу с позицией 2
+        elvMain.expandGroup(2);
     }
 }
