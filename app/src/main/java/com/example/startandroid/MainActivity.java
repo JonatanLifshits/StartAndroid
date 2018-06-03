@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -17,13 +18,12 @@ public class MainActivity extends Activity {
 
 
         tvInfo = findViewById(R.id.tvInfo);
+        sp = PreferenceManager.getDefaultSharedPreferences(this);
 
     }
     protected void OnResume(){
-        Boolean notif = sp.getBoolean("notif",false);
-        String address = sp.getString("address","");
-        String text = "Notifications are" + ((notif) ? "enabled, address = " + address : "disabled");
-        tvInfo.setText(text);
+       String listValues = sp.getString("list" ,"не выбрано");
+       tvInfo.setText("Значение списка - " + listValues);
         super.onResume();
     }
     public boolean OnCreateOptionsMenu(Menu menu){
