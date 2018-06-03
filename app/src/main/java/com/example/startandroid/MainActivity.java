@@ -1,62 +1,37 @@
 package com.example.startandroid;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import android.preference.PreferenceActivity;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
-
-    final String LOG_TAG = "myLogs";
-    int cnt = 0;
-
-    /** Called when the activity is first created. */
+    private TextView tvInfo;
+    private SharedPreferences sp;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        Log.d(LOG_TAG, "onCreate");
-    }
 
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(LOG_TAG, "onDestroy");
-    }
 
-    protected void onPause() {
-        super.onPause();
-        Log.d(LOG_TAG, "onPause");
-    }
+        tvInfo = findViewById(R.id.tvInfo);
 
-    protected void onRestart() {
-        super.onRestart();
-        Log.d(LOG_TAG, "onRestart");
     }
-
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        Log.d(LOG_TAG, "onRestoreInstanceState");
-    }
-
-    protected void onResume() {
+    protected void OnResume(){
+        Boolean notif = sp.getBoolean("notif",false);
+        String address = sp.getString("address","");
+        String text = "Notifications are" + ((notif) ? "enabled, address = " + address : "disabled");
+        tvInfo.setText(text);
         super.onResume();
-        Log.d(LOG_TAG, "onResume ");
     }
-
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(LOG_TAG, "onSaveInstanceState");
-    }
-
-    protected void onStart() {
-        super.onStart();
-        Log.d(LOG_TAG, "onStart");
-    }
-
-    protected void onStop() {
-        super.onStop();
-        Log.d(LOG_TAG, "onStop");
-    }
-
-    public void onclick(View v) {
+    public boolean OnCreateOptionsMenu(Menu menu){
+        MenuItem mi = menu.add(0, 1, 0 ,"Preferences");
+        mi.setIntent(new Intent(this, PreferenceActivity.class));
+        return super.onCreateOptionsMenu(menu);
     }
 }
+
+
 
