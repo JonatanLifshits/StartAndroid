@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
-    MyTask mt;
-    TextView tvInfo;
+    private MyTask mt;
+    private TextView tvInfo;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,13 +19,13 @@ public class MainActivity extends Activity {
 
         tvInfo = (TextView) findViewById(R.id.tvInfo);
     }
+    public void OnClick(View v){
 
-    public void onclick(View v) {
         mt = new MyTask();
-        mt.execute();
-    }
+        mt.execute("file_path_1", "file_path_2", "file_path_3", "file_path_4");
 
-    class MyTask extends AsyncTask<Void, Void, Void> {
+    }
+    class MyTask extends AsyncTask<String, Integer, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -34,19 +34,39 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Void doInBackground(String... urls) {
             try {
-                TimeUnit.SECONDS.sleep(2);
+                int cnt = 0;
+                for (String url : urls) {
+                    // загружаем файл
+                    downloadFile(url);
+                    // выводим промежуточные результаты
+                    publishProgress(++cnt);
+                }
+                // разъединяемся
+                TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return null;
         }
 
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            tvInfo.setText("Downloaded " + values[0] + " files");
+        }
+
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             tvInfo.setText("End");
+        }
+
+
+        private void downloadFile(String url) throws InterruptedException {
+            TimeUnit.SECONDS.sleep(2);
         }
     }
 }
