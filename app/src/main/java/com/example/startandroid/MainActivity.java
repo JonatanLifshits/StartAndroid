@@ -1,73 +1,68 @@
 package com.example.startandroid;
 
-import java.io.IOException;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
 import android.app.Activity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Handler;
 
 public class MainActivity extends Activity {
 
     final String LOG_TAG = "myLogs";
+    private handler h;
+    private TextView tvInfo;
+    private Button btnStart;
 
-    /** Called when the activity is first created. */
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        String tmp = "";
-
-        try {
-            XmlPullParser xpp = prepareXpp();
-
-            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
-                switch (xpp.getEventType()) {
-                    // начало документа
-                    case XmlPullParser.START_DOCUMENT:
-                        Log.d(LOG_TAG, "START_DOCUMENT");
-                        break;
-                    // начало тэга
-                    case XmlPullParser.START_TAG:
-                        Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
-                                + ", depth = " + xpp.getDepth() + ", attrCount = "
-                                + xpp.getAttributeCount());
-                        tmp = "";
-                        for (int i = 0; i < xpp.getAttributeCount(); i++) {
-                            tmp = tmp + xpp.getAttributeName(i) + " = "
-                                    + xpp.getAttributeValue(i) + ", ";
+        tvInfo = (TextView) findViewById(R.id.tvInfo);
+        btnStart = (Button) findViewById(R.id.btnStart);
+        h = new Handler() {
+            public void handleMessage(android.os.Message msg) {
+                // обновляем TextView
+                tvInfo.setText("Закачано файлов: " + msg.what);
+                if (msg.what == 10) btnStart.setEnabled(true);
+            };
+        };
+    }
+    public void onclick(View v) {
+        switch (v.getId()) {
+            case R.id.btnStart:
+                btnStart.setEnabled(false);
+                Thread t = new Thread(new Runnable() {
+                    public void run() {
+                        for (int i = 1; i <= 10; i++) {
+                            // долгий процесс
+                            downloadFile();
+                            h.sendEmptyMessage(i);
+                            // пишем лог
+                            Log.d(LOG_TAG, "i = " + i);
                         }
-                        if (!TextUtils.isEmpty(tmp))
-                            Log.d(LOG_TAG, "Attributes: " + tmp);
-                        break;
-                    // конец тэга
-                    case XmlPullParser.END_TAG:
-                        Log.d(LOG_TAG, "END_TAG: name = " + xpp.getName());
-                        break;
-                    // содержимое тэга
-                    case XmlPullParser.TEXT:
-                        Log.d(LOG_TAG, "text = " + xpp.getText());
-                        break;
-
-                    default:
-                        break;
-                }
-                // следующий элемент
-                xpp.next();
-            }
-            Log.d(LOG_TAG, "END_DOCUMENT");
-
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+                    }
+                });
+                t.start();
+                break;
+            case R.id.btnTest:
+                Log.d(LOG_TAG, "test");
+                break;
+            default:
+                break;
         }
     }
 
-    XmlPullParser prepareXpp() {
-        return getResources().getXml(R.xml.data);
+
+    void downloadFile() {
+        // пауза - 1 секунда
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
+
