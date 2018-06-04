@@ -2,14 +2,15 @@ package com.example.startandroid;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Handler;
 
 public class MainActivity extends Activity {
 
@@ -17,20 +18,26 @@ public class MainActivity extends Activity {
     final int STATUS_NONE = 0; // нет подключения
     final int STATUS_CONNECTING = 1; // подключаемся
     final int STATUS_CONNECTED = 2; // подключено
-
-    Handler h;
+    final int STATUS_DOWNLOAD_START = 3;
+    final int STATUS_DOWNLOAD_FILE = 4;
+    final int STATUS_DOWNLOAD_END = 5;
+    final int STATUS_DOWNLOAD_NONE = 6;
 
     TextView tvStatus;
-    ProgressBar pbConnect;
+    ProgressBar pbDownload;
     Button btnConnect;
 
-    /** Called when the activity is first created. */
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+        Handler h;
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
         tvStatus = (TextView) findViewById(R.id.tvStatus);
-        pbConnect = (ProgressBar) findViewById(R.id.pbConnect);
+        pbDownload = (ProgressBar) findViewById(R.id.pbDownload);
         btnConnect = (Button) findViewById(R.id.btnConnect);
 
         h = new Handler() {
@@ -39,15 +46,31 @@ public class MainActivity extends Activity {
                     case STATUS_NONE:
                         btnConnect.setEnabled(true);
                         tvStatus.setText("Not connected");
+                        pbDownload.setVisibility(View.GONE);
                         break;
                     case STATUS_CONNECTING:
                         btnConnect.setEnabled(false);
-                        pbConnect.setVisibility(View.VISIBLE);
                         tvStatus.setText("Connecting");
                         break;
                     case STATUS_CONNECTED:
-                        pbConnect.setVisibility(View.GONE);
                         tvStatus.setText("Connected");
+                        break;
+                    case STATUS_DOWNLOAD_START:
+                        tvStatus.setText("Start download " + msg.arg1 + " files");
+                        pbDownload.setMax(msg.arg1);
+                        pbDownload.setProgress(0);
+                        pbDownload.setVisibility(View.VISIBLE);
+                        break;
+                    case STATUS_DOWNLOAD_FILE:
+                        tvStatus.setText("Downloading. Left " + msg.arg2 + " files");
+                        pbDownload.setProgress(msg.arg1);
+                        saveFile((byte[]) msg.obj);
+                        break;
+                    case STATUS_DOWNLOAD_END:
+                        tvStatus.setText("Download complete!");
+                        break;
+                    case STATUS_DOWNLOAD_NONE:
+                        tvStatus.setText("No files for download");
                         break;
                 }
             };
@@ -56,20 +79,58 @@ public class MainActivity extends Activity {
     }
 
     public void onclick(View v) {
+
         Thread t = new Thread(new Runnable() {
+            Message msg;
+            byte[] file;
+            Random rand = new Random();
+
             public void run() {
                 try {
                     // устанавливаем подключение
+                    Handler h;
                     h.sendEmptyMessage(STATUS_CONNECTING);
-                    TimeUnit.SECONDS.sleep(2);
+                    TimeUnit.SECONDS.sleep(1);
 
-                    // установлено
+                    // подключение установлено
                     h.sendEmptyMessage(STATUS_CONNECTED);
 
-                    // выполняется какая-то работа
-                    TimeUnit.SECONDS.sleep(3);
+                    // определяем кол-во файлов
+                    TimeUnit.SECONDS.sleep(1);
+                    int filesCount = rand.nextInt(5);
 
-                    // разрываем подключение
+                    if (filesCount == 0) {
+                        // сообщаем, что файлов для загрузки нет
+                        h.sendEmptyMessage(STATUS_DOWNLOAD_NONE);
+                        // и отключаемся
+                        TimeUnit.MILLISECONDS.sleep(1500);
+                        h.sendEmptyMessage(STATUS_NONE);
+                        return;
+                    }
+
+                    // загрузка начинается
+                    // создаем сообщение, с информацией о количестве файлов
+                    msg = h.obtainMessage(STATUS_DOWNLOAD_START, filesCount, 0);
+                    // отправляем
+                    h.sendMessage(msg);
+
+                    for (int i = 1; i <= filesCount; i++) {
+                        // загружается файл
+                        file = downloadFile();
+                        // создаем сообщение с информацией о порядковом номере
+                        // файла,
+                        // кол-вом оставшихся и самим файлом
+                        msg = h.obtainMessage(STATUS_DOWNLOAD_FILE, i,
+                                filesCount - i, file);
+                        // отправляем
+                        h.sendMessage(msg);
+                    }
+
+                    // загрузка завершена
+                    h.sendEmptyMessage(STATUS_DOWNLOAD_END);
+
+                    // отключаемся
+                    TimeUnit.MILLISECONDS.sleep(1500);
                     h.sendEmptyMessage(STATUS_NONE);
 
                 } catch (InterruptedException e) {
@@ -80,5 +141,13 @@ public class MainActivity extends Activity {
         t.start();
     }
 
-}
+    byte[] downloadFile() throws InterruptedException {
+        TimeUnit.SECONDS.sleep(2);
+        return new byte[1024];
+    }
 
+    void saveFile(byte[] file) {
+
+    }
+
+}
