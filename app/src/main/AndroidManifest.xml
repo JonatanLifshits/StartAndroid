@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".one" />
-        <activity android:name=".Main2Activity"></activity>
+        <activity android:name=".OneActivity" />
+        <activity android:name=".TwoActivity"></activity>
     </application>
 
 </manifest>
