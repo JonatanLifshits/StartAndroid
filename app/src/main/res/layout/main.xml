@@ -12,16 +12,12 @@
         android:text="@string/start">
     </Button>
     <Button
-        android:id="@+id/btnGet"
+        android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/get"
-        android:onClick="onclick">
+        android:onClick="onclick"
+        android:text="@string/cancel">
     </Button>
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </ProgressBar>
     <TextView
         android:id="@+id/tvInfo"
         android:layout_width="wrap_content"
