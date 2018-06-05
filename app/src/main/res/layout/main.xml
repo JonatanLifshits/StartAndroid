@@ -12,11 +12,11 @@
         android:text="@string/start">
     </Button>
     <Button
-        android:id="@+id/btnCancel"
+        android:id="@+id/btnStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onclick"
-        android:text="@string/cancel">
+        android:text="@string/status">
     </Button>
     <TextView
         android:id="@+id/tvInfo"
