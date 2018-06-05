@@ -5,11 +5,23 @@
     android:layout_height="fill_parent"
     android:orientation="vertical">
     <Button
+        android:id="@+id/btnStart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="onclick"
         android:text="@string/start">
     </Button>
+    <Button
+        android:id="@+id/btnGet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/get"
+        android:onClick="onclick">
+    </Button>
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </ProgressBar>
     <TextView
         android:id="@+id/tvInfo"
         android:layout_width="wrap_content"

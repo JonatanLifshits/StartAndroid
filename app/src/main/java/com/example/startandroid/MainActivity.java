@@ -1,17 +1,22 @@
 package com.example.startandroid;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     private MyTask mt;
     private TextView tvInfo;
+    final String LOG_TAG = "My logs";
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,53 +25,73 @@ public class MainActivity extends Activity {
         tvInfo = (TextView) findViewById(R.id.tvInfo);
     }
     public void OnClick(View v){
-
-        mt = new MyTask();
-        mt.execute("file_path_1", "file_path_2", "file_path_3", "file_path_4");
-
+        switch (v.getId()){
+        case R.id.btnStart:
+            mt = new Mytask();
+            mt.execute();
+            break;
+            case R.id.btnGet:
+                showResult();
+                break;
+                default:
+                    break;
+        }
     }
-    class MyTask extends AsyncTask<String, Integer, Void> {
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            tvInfo.setText("Begin");
-        }
-
-        @Override
-        protected Void doInBackground(String... urls) {
-            try {
-                int cnt = 0;
-                for (String url : urls) {
-                    // загружаем файл
-                    downloadFile(url);
-                    // выводим промежуточные результаты
-                    publishProgress(++cnt);
-                }
-                // разъединяемся
-                TimeUnit.SECONDS.sleep(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+    private void showResult() {
+        if (mt == null) return;
+        int result = -1;
+        Log.d(LOG_TAG, "Try to get result");
+        result = mt.get();
+        Log.d(LOG_TAG, "get returns " + result);
+        Toast.makeText(this, "get returns " + result, Toast.LENGTH_LONG).show();
+        class MyTask extends AsyncTask<Void, Void, Integer> {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                tvInfo.setText("Begin");
+                Log.d(LOG_TAG, "Begin");
             }
-            return null;
+
+
+            @Override
+            protected Integer doInBackground(Void... params) {
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return 100500;
+            }
+
+            @Override
+            protected void onPostExecute(Integer result) {
+                super.onPostExecute(result);
+                tvInfo.setText("End. Result = " + result);
+                Log.d(LOG_TAG, "End. Result = " + result);
+
+            }
         }
+    }
 
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-            tvInfo.setText("Downloaded " + values[0] + " files");
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            tvInfo.setText("End");
-        }
-
-
-        private void downloadFile(String url) throws InterruptedException {
-            TimeUnit.SECONDS.sleep(2);
+    private class Mytask extends MyTask {
+    }
+    private void showResult() {
+        if (mt == null) return;
+        int result = -1;
+        try {
+            Log.d(LOG_TAG, "Try to get result");
+            result = mt.get(1, TimeUnit.SECONDS);
+            Log.d(LOG_TAG, "get returns " + result);
+            Toast.makeText(this, "get returns " + result, Toast.LENGTH_LONG).show();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            Log.d(LOG_TAG, "get timeout, result = " + result);
+            e.printStackTrace();
         }
     }
 }
+
