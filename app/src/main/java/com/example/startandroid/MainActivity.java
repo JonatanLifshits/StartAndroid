@@ -14,9 +14,4 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main);
     }
 
-    public void onClickStart(View v) {
-        startService(new Intent(this, MyService.class).putExtra("time", 7));
-        startService(new Intent(this, MyService.class).putExtra("time", 2));
-        startService(new Intent(this, MyService.class).putExtra("time", 4));
-    }
-}
+//    I dont understand!!!
