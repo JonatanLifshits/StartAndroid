@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -16,17 +17,23 @@ public class MainActivity extends Activity {
     boolean bound = false;
     ServiceConnection sConn;
     Intent intent;
+    MyService myService;
+    TextView tvInterval;
+    long interval;
+
 
     /** Called when the activity is first created. */
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
-        intent = new Intent("ru.startandroid.develop.p0972servicebindserver.MyService");
-
+        tvInterval = (TextView) findViewById(R.id.tvInterval);
+        intent = new Intent(this, MyService.class);
         sConn = new ServiceConnection() {
+
             public void onServiceConnected(ComponentName name, IBinder binder) {
                 Log.d(LOG_TAG, "MainActivity onServiceConnected");
+                myService = ((MyService.MyBinder) binder).getService();
                 bound = true;
             }
 
@@ -37,26 +44,33 @@ public class MainActivity extends Activity {
         };
     }
 
-    public void onClickStart(View v) {
-        startService(intent);
-    }
-
-    public void onClickStop(View v) {
-        stopService(intent);
-    }
-
-    public void onClickBind(View v) {
+    @Override
+    protected void onStart() {
+        super.onStart();
         bindService(intent, sConn, 0);
     }
 
-    public void onClickUnBind(View v) {
+    @Override
+    protected void onStop() {
+        super.onStop();
         if (!bound) return;
         unbindService(sConn);
         bound = false;
     }
 
-    protected void onDestroy() {
-        super.onDestroy();
-        onClickUnBind(null);
+    public void onClickStart(View v) {
+        startService(intent);
+    }
+
+    public void onClickUp(View v) {
+        if (!bound) return;
+        interval = myService.upInterval(500);
+        tvInterval.setText("interval = " + interval);
+    }
+
+    public void onClickDown(View v) {
+        if (!bound) return;
+        interval = myService.downInterval(500);
+        tvInterval.setText("interval = " + interval);
     }
 }
