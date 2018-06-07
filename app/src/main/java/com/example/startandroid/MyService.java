@@ -4,6 +4,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -13,26 +15,27 @@ public class MyService extends Service {
 
     final String LOG_TAG = "myLogs";
     ExecutorService es;
-    Object someRes;
 
     public void onCreate() {
         super.onCreate();
         Log.d(LOG_TAG, "MyService onCreate");
-        es = Executors.newFixedThreadPool(3);
-        someRes = new Object();
+        es = Executors.newFixedThreadPool(2);
     }
 
     public void onDestroy() {
         super.onDestroy();
         Log.d(LOG_TAG, "MyService onDestroy");
-        someRes = null;
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(LOG_TAG, "MyService onStartCommand");
-        int time = intent.getIntExtra("time", 1);
-        MyRun mr = new MyRun(time, startId);
+
+        int time = intent.getIntExtra(MainActivity.PARAM_TIME, 1);
+        PendingIntent pi = intent.getParcelableExtra(MainActivity.PARAM_PINTENT);
+
+        MyRun mr = new MyRun(time, startId, pi);
         es.execute(mr);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -44,24 +47,32 @@ public class MyService extends Service {
 
         int time;
         int startId;
+        PendingIntent pi;
 
-        public MyRun(int time, int startId) {
+        public MyRun(int time, int startId, PendingIntent pi) {
             this.time = time;
             this.startId = startId;
+            this.pi = pi;
             Log.d(LOG_TAG, "MyRun#" + startId + " create");
         }
 
         public void run() {
             Log.d(LOG_TAG, "MyRun#" + startId + " start, time = " + time);
             try {
+                // сообщаем об старте задачи
+                pi.send(MainActivity.STATUS_START);
+
+                // начинаем выполнение задачи
                 TimeUnit.SECONDS.sleep(time);
+
+                // сообщаем об окончании задачи
+                Intent intent = new Intent().putExtra(MainActivity.PARAM_RESULT, time * 100);
+                pi.send(MyService.this, MainActivity.STATUS_FINISH, intent);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-            try {
-                Log.d(LOG_TAG, "MyRun#" + startId + " someRes = " + someRes.getClass() );
-            } catch (NullPointerException e) {
-                Log.d(LOG_TAG, "MyRun#" + startId + " error, null pointer");
+            } catch (CanceledException e) {
+                e.printStackTrace();
             }
             stop();
         }
