@@ -14,6 +14,7 @@ public class MainActivity extends Activity {
 
     final String LOG_TAG = "myLogs";
 
+    String bound;
     ServiceConnection sConn;
     Intent intent;
     MyService myService;
