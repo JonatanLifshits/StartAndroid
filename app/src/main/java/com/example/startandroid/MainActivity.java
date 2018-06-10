@@ -14,7 +14,7 @@ public class MainActivity extends Activity {
 
     final String LOG_TAG = "myLogs";
 
-    boolean bound = false;
+    String bound;
     ServiceConnection sConn;
     Intent intent;
     MyService myService;
@@ -34,12 +34,10 @@ public class MainActivity extends Activity {
             public void onServiceConnected(ComponentName name, IBinder binder) {
                 Log.d(LOG_TAG, "MainActivity onServiceConnected");
                 myService = ((MyService.MyBinder) binder).getService();
-                bound = true;
             }
 
             public void onServiceDisconnected(ComponentName name) {
                 Log.d(LOG_TAG, "MainActivity onServiceDisconnected");
-                bound = false;
             }
         };
     }
@@ -53,9 +51,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (!bound) return;
         unbindService(sConn);
-        bound = false;
     }
 
     public void onClickStart(View v) {
@@ -63,13 +59,11 @@ public class MainActivity extends Activity {
     }
 
     public void onClickUp(View v) {
-        if (!bound) return;
         interval = myService.upInterval(500);
         tvInterval.setText("interval = " + interval);
     }
 
     public void onClickDown(View v) {
-        if (!bound) return;
         interval = myService.downInterval(500);
         tvInterval.setText("interval = " + interval);
     }
